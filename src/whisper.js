@@ -1,3 +1,5 @@
+"use strict";
+
 import { AudioRecorder } from "./util";
 
 export default class Whisper {

@@ -1,3 +1,5 @@
+"use strict";
+
 import { pipeline } from "@xenova/transformers";
 
 let transcriber;

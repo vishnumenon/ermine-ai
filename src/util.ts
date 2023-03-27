@@ -1,3 +1,5 @@
+"use strict";
+
 export class AudioRecorder {
   context: AudioContext | null;
   kSampleRate: number;

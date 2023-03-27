@@ -1,3 +1,5 @@
+"use strict";
+
 import Head from "next/head";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
