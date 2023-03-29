@@ -23,11 +23,11 @@ function Modal({
       id="default-modal"
       className={classNames(
         { hidden: !visible },
-        "overflow-x-hidden overflow-y-auto fixed h-modal md:h-full top-4 left-0 right-0 md:inset-0 z-50 flex justify-center items-center bg-black bg-opacity-10"
+        "overflow-x-hidden overflow-y-auto fixed h-full inset-0 z-50 flex justify-center items-center bg-black bg-opacity-10"
       )}
     >
       <div
-        className={classNames("relative w-full px-4 h-full md:h-auto", {
+        className={classNames("relative w-full px-4 h-auto", {
           "max-w-5xl": wide,
           "max-w-2xl": !wide,
         })}

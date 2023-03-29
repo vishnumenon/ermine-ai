@@ -29,13 +29,10 @@ function formatSeconds(seconds: number) {
 
 export default function Home() {
   const [isRecording, setIsRecording] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loadingModel, setLoadingModel] = useState(false);
   const [hasWeights, setHasWeights] = useState<boolean | undefined>(false);
   const [ready, setReady] = useState(false);
   const [title, setTitle] = useState("");
-  const [weightsProgress, setWeightsProgress] = useState<{
-    [k: string]: number;
-  }>({});
   const [transcription, setTranscription] = useState<{ [w: number]: string }>(
     {}
   );
@@ -119,7 +116,7 @@ export default function Home() {
             recording & transcription
           </span>
         </h1>
-        <div className="flex flex-row flex-1">
+        <div className="flex flex-col flex-1">
           <div className="flex-1 flex flex-col transition-all">
             <div
               className={classNames("transition-all flex items-center", {
@@ -132,7 +129,7 @@ export default function Home() {
                 className={classNames("transition-all", {
                   "text-center": beforeRecording,
                   "mt-8": !beforeRecording,
-                  "flex flex-row w-full": afterRecording,
+                  "flex flex-col md:flex-row w-full": afterRecording,
                 })}
               >
                 <div
@@ -185,9 +182,9 @@ export default function Home() {
                   )}
                 />
                 <AudioPlayer
-                  className={classNames("inline-block pl-4", {
+                  className={classNames("inline-block", {
                     "w-0 pl-0 overflow-clip": !hasAudio,
-                    "flex-1": hasAudio,
+                    "md:flex-1 md:pl-4 mt-4 md:mt-0 w-full md:w-auto": hasAudio,
                   })}
                   ref={audioPlayer}
                   onCurrentTimeChange={(time) => {
@@ -204,13 +201,10 @@ export default function Home() {
               </div>
             </div>
             <div
-              className={classNames(
-                "transition-all bg-white rounded-xl mt-4 p-4",
-                {
-                  "flex-1 border": !beforeRecording,
-                  "flex-0 h-0 overflow-hidden p-0": beforeRecording,
-                }
-              )}
+              className={classNames("transition-all bg-white rounded-xl", {
+                "flex-1 border p-4 mt-4": !beforeRecording,
+                "flex-0 h-0 overflow-hidden p-0": beforeRecording,
+              })}
             >
               {transcriptionWindows.map(([window, transcript], i) => (
                 <>
@@ -247,8 +241,8 @@ export default function Home() {
             className={classNames(
               "transition-all flex items-center justify-center",
               {
-                "flex-0 w-0 overflow-hidden": !afterRecording,
-                "flex-1": afterRecording,
+                "flex-0 h-0 overflow-hidden": !afterRecording,
+                "pt-6": afterRecording,
               }
             )}
           >
@@ -268,37 +262,25 @@ export default function Home() {
           title="Almost ready!"
           content={
             <div className="p-5">
-              Before using Ermine.AI, your browser needs to download the model
-              that it&apos;ll be using. This only needs to happen once, and
-              should only take a few minutes. Press the &lsquo;Load Model&rsquo;
-              button to download it now (~50mb).
-              <div className="pt-4">
-                <ProgressBar
-                  progress={
-                    Object.keys(weightsProgress).length === 0
-                      ? 0
-                      : Object.values(weightsProgress).reduce(
-                          (a, b) => a + b,
-                          0
-                        ) / Object.keys(weightsProgress).length
-                  }
-                />
+              Before using Ermine.AI, your browser needs to load and initialize
+              the transcription model. The first time you use Ermine.AI, this
+              might take a few minutes while the model files are downloaded and
+              cached (~150mb). Please be patient! Later sessions will be much
+              faster.
+              <div className="pt-2 font-semibold">
+                If you&apos;re prompted to allow microphone access, please do
+                so!
               </div>
             </div>
           }
           actions={[
             <Button
               onClick={async () => {
+                setLoadingModel(true);
                 await whisper.init(
                   (data: any) => {
                     if (data.status === "progress") {
-                      setWeightsProgress((prev) => {
-                        const n = {
-                          ...prev,
-                          [data.file]: data.progress,
-                        };
-                        return n;
-                      });
+                      console.debug(data);
                     }
                   },
                   (result: any) => {
@@ -308,11 +290,35 @@ export default function Home() {
                     }));
                   }
                 );
+                setLoadingModel(false);
                 setHasWeights(true);
               }}
-              className="bg-green-600 text-neutral-50"
+              className="bg-green-600 text-neutral-50 hover:bg-green-700 disabled:hover:cursor-not-allowed disabled:bg-neutral-500"
               key={1}
+              disabled={loadingModel}
             >
+              {loadingModel && (
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              )}
               Load Model
             </Button>,
           ]}

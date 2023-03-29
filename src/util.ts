@@ -2,16 +2,16 @@
 
 export class AudioRecorder {
   context: AudioContext | null;
-  kSampleRate: number;
-  kRestartRecording_s: number;
-  kIntervalAudio_ms: number;
+  sampleRate: number;
+  recordingIntervalSeconds: number;
+  callbackIntervalMS: number;
   mediaRecorder: MediaRecorder | null;
   audio: Blob | null;
 
   constructor() {
-    this.kSampleRate = 16000;
-    this.kRestartRecording_s = 30;
-    this.kIntervalAudio_ms = 5000; // Call onAudio at this rate
+    this.sampleRate = 16000;
+    this.recordingIntervalSeconds = 30;
+    this.callbackIntervalMS = 5000; // Call onAudio at this rate
     this.context = null;
     this.mediaRecorder = null;
     this.audio = null;
@@ -29,7 +29,7 @@ export class AudioRecorder {
 
   async init() {
     this.context = new window.AudioContext({
-      sampleRate: this.kSampleRate,
+      sampleRate: this.sampleRate,
       // @ts-ignore
       channelCount: 1,
       echoCancellation: false,
@@ -80,12 +80,15 @@ export class AudioRecorder {
       const audio = renderedBuffer.getChannelData(0);
       onAudio?.(audio, windowStartTime);
 
-      if (audioBuffer.duration - windowStartTime > this.kRestartRecording_s) {
+      if (
+        audioBuffer.duration - windowStartTime >
+        this.recordingIntervalSeconds
+      ) {
         windowStartTime = audioBuffer.duration;
         windowStartIndex = audioBuffer.length;
       }
     };
 
-    this.mediaRecorder.start(this.kIntervalAudio_ms);
+    this.mediaRecorder.start(this.callbackIntervalMS);
   }
 }
