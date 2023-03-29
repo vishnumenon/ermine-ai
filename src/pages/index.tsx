@@ -71,7 +71,7 @@ export default function Home() {
       name: title + ".md",
       lastModified: new Date(),
       input: `# ${title} \n\n${transcriptionWindows
-        .map(([window, text]) => `{${window}} ${text}`)
+        .map(([window, text]) => `{${formatSeconds(window)}} ${text}`)
         .join(" ")}`,
     };
 

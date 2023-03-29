@@ -20,7 +20,10 @@ async function initWorker() {
 onmessage = async (e) => {
   switch (e.data.status) {
     case "audioReady":
-      const result = await transcriber(e.data.audio);
+      const result = await transcriber(e.data.audio, {
+        chunk_length_s: 30,
+        temperature: 0.4,
+      });
       postMessage({
         status: "transcriptReady",
         transcript: result,
