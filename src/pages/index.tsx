@@ -27,7 +27,7 @@ export default function Home() {
   const [loadingModel, setLoadingModel] = useState(false);
   const [hasWeights, setHasWeights] = useState<boolean | undefined>(false);
   const [ready, setReady] = useState(false);
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState("Untitled");
   const [transcription, setTranscription] = useState<{
     [w: number]: string | null;
   }>({});
@@ -147,8 +147,8 @@ export default function Home() {
             recording & transcription
           </span>
         </h1>
-        <div className="flex flex-col flex-1">
-          <div className="flex-1 flex flex-col transition-all">
+        <div className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 flex min-h-0 flex-col transition-all">
             <div
               className={classNames("transition-all flex items-center", {
                 "flex-1": beforeRecording,
@@ -233,7 +233,8 @@ export default function Home() {
             </div>
             <div
               className={classNames("transition-all bg-white rounded-xl", {
-                "flex-1 border p-4 mt-4": !beforeRecording,
+                "flex-1 border p-4 mt-4 min-h-0 overflow-auto":
+                  !beforeRecording,
                 "flex-0 h-0 overflow-hidden p-0": beforeRecording,
               })}
             >
@@ -273,7 +274,7 @@ export default function Home() {
                           window === currentWindow,
                       })}
                     >
-                      {transcript}
+                      {transcript.trim()}
                     </span>
                   )}
                 </Fragment>

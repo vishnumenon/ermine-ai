@@ -43,28 +43,36 @@ function WindowProgress({
 
   console.log(duration);
   return (
-    <div className="inline-flex flex-row gap-2 items-center align-middle">
-      {recordingDone || !isRecording ? (
-        <>
-          <Spinner className="!text-neutral-400 ml-1" />
-          <span className="text-neutral-400">Transcribing...</span>
-        </>
-      ) : (
-        <>
-          <div className="w-44 ml-1">
-            <ProgressBar progress={(100 * duration) / 30} />
-          </div>
+    <>
+      <div className="inline-flex flex-row gap-2 items-center align-middle">
+        {recordingDone || !isRecording ? (
+          <>
+            <Spinner className="!text-neutral-400 ml-1" />
+            <span className="text-neutral-400 italic">Transcribing...</span>
+          </>
+        ) : (
+          <>
+            <div className="w-44 ml-1">
+              <ProgressBar progress={(100 * duration) / 30} />
+            </div>
 
-          <span
-            className={classNames(
-              "text-xs inline-block px-1 py-0.5 mx-1 rounded-lg bg-red-600 text-neutral-50 transition-all"
-            )}
-          >
-            {formatSeconds(duration + windowStart)}
-          </span>
-        </>
+            <span
+              className={classNames(
+                "text-xs inline-block px-1 py-0.5 mx-1 rounded-lg bg-red-600 text-neutral-50 transition-all"
+              )}
+            >
+              {formatSeconds(duration + windowStart)}
+            </span>
+          </>
+        )}
+      </div>
+      {isRecording && !recordingDone && windowStart === 0 && (
+        <span className="text-neutral-400 italic">
+          Transcription occurs in 30 second chunks &ndash; you&apos;ll see
+          results here soon!
+        </span>
       )}
-    </div>
+    </>
   );
 }
 
