@@ -9,23 +9,18 @@ import {
   faMicrophoneLines,
   faStop,
 } from "@fortawesome/free-solid-svg-icons";
-import { ElementRef, useEffect, useRef, useState } from "react";
+import { ElementRef, Fragment, useEffect, useRef, useState } from "react";
 import classNames from "classnames";
 import Modal from "@/components/Modal";
-import ProgressBar from "@/components/ProgressBar";
 import Button from "@/components/Button";
 import Whisper from "../whisper";
 import AudioPlayer from "@/components/AudioPlayer";
 import { downloadZip } from "client-zip";
+import WindowProgress from "@/components/WindowProgress/WindowProgress";
+import Spinner from "@/components/Spinner/Spinner";
+import { formatSeconds } from "@/util";
 
 let whisper: any = null;
-
-function formatSeconds(seconds: number) {
-  const flooredSeconds = Math.floor(seconds);
-  const minutes = Math.floor(flooredSeconds / 60);
-  const remainingSeconds = flooredSeconds - minutes * 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-}
 
 export default function Home() {
   const [isRecording, setIsRecording] = useState(false);
@@ -33,11 +28,12 @@ export default function Home() {
   const [hasWeights, setHasWeights] = useState<boolean | undefined>(false);
   const [ready, setReady] = useState(false);
   const [title, setTitle] = useState("");
-  const [transcription, setTranscription] = useState<{ [w: number]: string }>(
-    {}
-  );
+  const [transcription, setTranscription] = useState<{
+    [w: number]: string | null;
+  }>({});
   const [hasAudio, setHasAudio] = useState(false);
   const [currentWindow, setCurrentWindow] = useState<number | undefined>();
+  const [recordingStart, setRecordingStart] = useState<number | undefined>();
   const audioPlayer = useRef<ElementRef<typeof AudioPlayer>>(null);
 
   useEffect(() => {
@@ -46,8 +42,13 @@ export default function Home() {
 
   useEffect(() => {
     if (isRecording) {
+      setRecordingStart(Date.now());
+      setTranscription({
+        0: null,
+      });
       whisper.startStreaming();
     } else {
+      setRecordingStart(undefined);
       whisper.stopStreaming();
       if (whisper.audioRecorder) {
         const audioUrl = whisper.audioRecorder.getAudioUrl();
@@ -75,10 +76,7 @@ export default function Home() {
         .join(" ")}`,
     };
 
-    console.log(whisper);
-
     const audioData = whisper.audioRecorder.getAudioBlob();
-    console.log(audioData);
     const audioFile = new File([audioData], title + ".ogg");
 
     const blob = await downloadZip([transcriptFile, audioFile]).blob();
@@ -207,7 +205,7 @@ export default function Home() {
               })}
             >
               {transcriptionWindows.map(([window, transcript], i) => (
-                <>
+                <Fragment key={window}>
                   <span
                     className={classNames(
                       "text-xs inline-block px-1 py-0.5 mx-1 rounded-lg bg-neutral-200 text-neutral-600 transition-all",
@@ -223,17 +221,29 @@ export default function Home() {
                   >
                     {formatSeconds(window)}
                   </span>
-                  <span
-                    className={classNames({
-                      "text-neutral-300":
-                        isRecording && i === transcriptionWindows.length - 1,
-                      "bg-red-50 border-t border-b border-red-500":
-                        window === currentWindow,
-                    })}
-                  >
-                    {transcript}
-                  </span>
-                </>
+                  {transcript === null ? (
+                    <WindowProgress
+                      isRecording={isRecording}
+                      recordingStart={recordingStart}
+                      windowStart={window}
+                      onWindowEnd={(window) => {
+                        setTranscription((prev) => ({
+                          ...prev,
+                          [window + 30]: prev[window + 30] ?? null,
+                        }));
+                      }}
+                    />
+                  ) : (
+                    <span
+                      className={classNames({
+                        "bg-red-50 border-t border-b border-red-500":
+                          window === currentWindow,
+                      })}
+                    >
+                      {transcript}
+                    </span>
+                  )}
+                </Fragment>
               ))}
             </div>
           </div>
@@ -280,7 +290,7 @@ export default function Home() {
                 await whisper.init(
                   (data: any) => {
                     if (data.status === "progress") {
-                      console.debug(data);
+                      // console.debug(data);
                     }
                   },
                   (result: any) => {
@@ -297,28 +307,7 @@ export default function Home() {
               key={1}
               disabled={loadingModel}
             >
-              {loadingModel && (
-                <svg
-                  className="animate-spin h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-              )}
+              {loadingModel && <Spinner />}
               Load Model
             </Button>,
           ]}

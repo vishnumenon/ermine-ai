@@ -1,6 +1,6 @@
 "use strict";
 
-import { AudioRecorder } from "./util";
+import { AudioRecorder } from "./recorder";
 
 export default class Whisper {
   transcriber;
@@ -36,7 +36,7 @@ export default class Whisper {
     });
   }
 
-  startStreaming(onResult) {
+  startStreaming() {
     console.log("Starting Audio Streaming...");
     this.audioRecorder &&
       this.audioRecorder.start(async (audio, windowStart) => {
