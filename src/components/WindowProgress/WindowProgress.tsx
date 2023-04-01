@@ -41,7 +41,6 @@ function WindowProgress({
     setRecordingDone(false);
   }, [windowStart]);
 
-  console.log(duration);
   return (
     <>
       <div className="inline-flex flex-row gap-2 items-center align-middle">
