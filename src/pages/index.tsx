@@ -309,8 +309,8 @@ export default function Home() {
               Before using Ermine.AI, your browser needs to load and initialize
               the transcription model. The first time you use Ermine.AI, this
               might take a few minutes while the model files are downloaded and
-              cached (~150mb). Please be patient! Later sessions will be much
-              faster.
+              cached (~50mb). Please be patient! Later sessions will be much
+              faster. Currently, the model only supports English transcription.
               <div className="pt-2 font-semibold">
                 If you&apos;re prompted to allow microphone access, please do
                 so!
