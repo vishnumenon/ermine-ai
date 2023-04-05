@@ -24,6 +24,7 @@ let whisper: any = null;
 
 export default function Home() {
   const [isRecording, setIsRecording] = useState(false);
+  const [browserUnsupported, setBrowserUnsupported] = useState(false);
   const [loadingModel, setLoadingModel] = useState(false);
   const [hasWeights, setHasWeights] = useState<boolean | undefined>(false);
   const [ready, setReady] = useState(false);
@@ -38,6 +39,12 @@ export default function Home() {
 
   useEffect(() => {
     whisper = new Whisper();
+  }, []);
+
+  useEffect(() => {
+    // @ts-ignore
+    const browserSupported = typeof window !== "undefined" && !!window.chrome;
+    setBrowserUnsupported(!browserSupported);
   }, []);
 
   useEffect(() => {
@@ -306,6 +313,13 @@ export default function Home() {
           title="Almost ready!"
           content={
             <div className="p-5">
+              {browserUnsupported && (
+                <div className="pb-2 font-semibold text-red-600">
+                  <span className="font-extrabold">Note:</span> Ermine.AI
+                  currently supports Chrome only. Firefox support is coming
+                  soon!
+                </div>
+              )}
               Before using Ermine.AI, your browser needs to load and initialize
               the transcription model. The first time you use Ermine.AI, this
               might take a few minutes while the model files are downloaded and
