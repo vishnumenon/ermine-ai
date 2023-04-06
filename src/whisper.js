@@ -29,7 +29,7 @@ export default class Whisper {
             onResult?.(e.data);
         }
       };
-      this.worker.onrror = (e) => {
+      this.worker.onerror = (e) => {
         console.error(e);
         reject(e);
       };
